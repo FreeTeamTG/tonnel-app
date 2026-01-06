@@ -13,7 +13,7 @@
             --text-main: #ffffff;
             --text-secondary: #8b949e;
             --border-color: #2d3846;
-            --tab-active: #232e3a;
+            --switch-off: #2d3846;
         }
 
         body {
@@ -21,227 +21,160 @@
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0; padding: 0;
-            overflow-x: hidden;
-            user-select: none;
+            padding-bottom: 100px;
         }
 
-        /* Header */
+        /* Top Controls */
         .header {
             padding: 12px 16px;
             display: flex; align-items: center; justify-content: space-between;
-            background: var(--bg-color);
-            position: sticky; top: 0; z-index: 100;
+            position: sticky; top: 0; background: var(--bg-color); z-index: 10;
         }
 
-        .balance-chip {
+        .balance-box {
             background: var(--panel-bg);
-            padding: 6px 10px;
-            border-radius: 10px;
+            padding: 8px 12px; border-radius: 12px;
             display: flex; align-items: center; gap: 8px;
-            font-size: 14px; font-weight: 600;
+            font-weight: 600;
         }
 
-        .controls { display: flex; gap: 6px; }
-        .btn-sm {
-            width: 28px; height: 28px;
-            border-radius: 50%; border: none;
-            background: var(--accent-blue); color: white;
-            font-size: 18px; display: flex; align-items: center; justify-content: center;
+        .btn-circle {
+            width: 28px; height: 28px; border-radius: 50%;
+            border: none; background: var(--accent-blue);
+            color: white; font-size: 18px;
         }
 
         .btn-connect {
             background: var(--accent-blue);
             color: white; border: none;
-            padding: 8px 14px; border-radius: 12px;
-            font-weight: 700; font-size: 13px;
+            padding: 10px 16px; border-radius: 14px;
+            font-weight: bold; font-size: 14px;
         }
 
-        /* Profile Area */
-        .profile-section {
-            background: var(--panel-bg);
-            margin: 10px 16px;
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .main-avatar {
-            width: 72px; height: 72px;
-            border-radius: 50%;
-            border: 3px solid var(--border-color);
-            margin-bottom: 10px;
-        }
-
-        .stats-grid {
+        /* Switches Row */
+        .settings-row {
             display: grid; grid-template-columns: 1fr 1fr;
-            margin-top: 15px; border-top: 1px solid var(--border-color);
-            padding-top: 15px;
+            gap: 8px; padding: 0 16px 12px;
         }
 
-        .stat-label { color: var(--text-secondary); font-size: 12px; margin-bottom: 4px; }
-        .stat-value { font-weight: 700; font-size: 16px; }
-
-        /* Navigation Tabs */
-        .sub-nav {
-            display: flex; gap: 15px;
-            padding: 0 16px 10px;
-            overflow-x: auto;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .sub-tab {
-            color: var(--text-secondary);
-            font-size: 14px; padding: 8px 12px;
-            white-space: nowrap; border-radius: 8px;
-        }
-
-        .sub-tab.active {
-            background: var(--tab-active);
-            color: var(--accent-blue);
-            font-weight: 600;
-        }
-
-        /* Filters & Switches (из скрина image_f20c21) */
-        .filters-row {
-            padding: 12px 16px;
-            display: flex; gap: 10px;
-            overflow-x: auto;
-        }
-
-        .filter-select {
+        .switch-card {
             background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            color: white; padding: 8px 12px;
-            border-radius: 10px; font-size: 13px;
-        }
-
-        .switch-box {
+            padding: 10px; border-radius: 10px;
             display: flex; align-items: center; gap: 8px;
-            background: var(--panel-bg);
-            padding: 8px 12px; border-radius: 10px;
             font-size: 13px;
         }
 
-        /* Content Area */
-        .main-content {
-            padding: 40px 20px;
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 14px;
+        .toggle {
+            width: 34px; height: 18px;
+            background: var(--switch-off);
+            border-radius: 10px; position: relative;
         }
 
-        /* Footer */
-        .footer {
+        .toggle.on { background: var(--accent-blue); }
+        .toggle::after {
+            content: ''; position: absolute;
+            width: 14px; height: 14px; background: white;
+            border-radius: 50%; top: 2px; left: 2px;
+            transition: 0.2s;
+        }
+        .toggle.on::after { left: 18px; }
+
+        /* Listing Tabs */
+        .list-tabs {
+            display: flex; padding: 0 16px; gap: 10px;
+            overflow-x: auto; margin-bottom: 16px;
+        }
+
+        .l-tab {
+            padding: 8px 16px; border-radius: 10px;
+            background: var(--panel-bg); color: var(--text-secondary);
+            font-size: 14px; white-space: nowrap;
+        }
+
+        .l-tab.active {
+            background: #232e3a; color: var(--accent-blue);
+            box-shadow: inset 0 0 0 1px var(--accent-blue);
+        }
+
+        /* Selects */
+        .select-grid {
+            display: grid; grid-template-columns: 1fr 1fr 40px 40px;
+            gap: 8px; padding: 0 16px; align-items: center;
+        }
+
+        .ui-select {
+            background: var(--panel-bg); color: white;
+            border: 1px solid var(--border-color);
+            padding: 10px; border-radius: 10px; font-size: 13px;
+        }
+
+        /* Main Footer */
+        .nav-footer {
             position: fixed; bottom: 0; width: 100%;
             background: var(--panel-bg);
             display: flex; justify-content: space-around;
-            padding: 10px 0 25px;
-            border-top: 1px solid var(--border-color);
+            padding: 10px 0 25px; border-top: 1px solid var(--border-color);
         }
 
-        .footer-item {
-            display: flex; flex-direction: column; align-items: center;
-            color: var(--text-secondary); text-decoration: none;
-            font-size: 10px; gap: 4px;
+        .nav-item {
+            text-align: center; color: var(--text-secondary);
+            font-size: 11px; text-decoration: none;
         }
 
-        .footer-item.active { color: var(--accent-blue); }
-        .footer-icon { font-size: 22px; }
+        .nav-item.active { color: var(--accent-blue); }
+        .nav-icon { font-size: 24px; display: block; margin-bottom: 4px; }
 
-        /* Modal Wallet */
-        #wallet-modal {
-            display: none; position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%; background: rgba(0,0,0,0.8);
-            z-index: 1000; align-items: center; justify-content: center;
-        }
-        .modal-content {
-            background: var(--panel-bg); width: 80%;
-            padding: 24px; border-radius: 20px; text-align: center;
-        }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="balance-chip">
-            <span style="color: var(--accent-blue)">💎</span> 0.002
-            <div class="controls">
-                <button class="btn-sm">+</button>
-                <button class="btn-sm" style="background: var(--border-color)">−</button>
-            </div>
+        <div class="balance-box">
+            <span style="color:var(--accent-blue)">💎</span> 0.002
+            <button class="btn-circle">+</button>
+            <button class="btn-circle" style="background:var(--border-color)">-</button>
         </div>
-        <button class="btn-connect" onclick="showWallet()">Connect Wallet</button>
+        <button class="btn-connect" onclick="tg.HapticFeedback.impactOccurred('heavy')">Connect Wallet</button>
     </div>
 
-    <div id="page-profile">
-        <div class="profile-section">
-            <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="main-avatar" id="avatar">
-            <div id="username" style="font-weight: 800; font-size: 18px;">USER</div>
-            <div class="stats-grid">
-                <div>
-                    <div class="stat-label">Volume</div>
-                    <div class="stat-value" style="color: var(--accent-blue)">💎 7.4</div>
-                </div>
-                <div>
-                    <div class="stat-label">Referrals</div>
-                    <div class="stat-value">0</div>
-                </div>
-            </div>
+    <div class="settings-row">
+        <div class="switch-card">
+            <div class="toggle"></div> Internal Purchase
         </div>
-
-        <div class="sub-nav">
-            <div class="sub-tab active">Gifts</div>
-            <div class="sub-tab">Activity</div>
-            <div class="sub-tab">Orders</div>
-            <div class="sub-tab">Deals</div>
-            <div class="sub-tab">Offers</div>
+        <div class="switch-card">
+            <div class="toggle"></div> Lite UI(Beta!)
+        </div>
+        <div class="switch-card" style="grid-column: span 2;">
+            <div class="toggle on"></div> Performance <span style="color:var(--accent-blue)">ⓘ</span>
         </div>
     </div>
 
-    <div class="filters-row">
-        <div class="switch-box">
-            <span style="color: var(--accent-blue)">●</span> Performance
-        </div>
-        <select class="filter-select">
-            <option>Gifts: All</option>
-        </select>
-        <select class="filter-select">
-            <option>Status: All</option>
-        </select>
+    <div class="list-tabs">
+        <div class="l-tab active">Listed</div>
+        <div class="l-tab">Unlisted</div>
+        <div class="l-tab">On-Chain</div>
+        <div class="l-tab">Instant Transfer</div>
     </div>
 
-    <div class="main-content" id="display-area">
-        You don't have any offers yet.
+    <div class="select-grid">
+        <select class="ui-select"><option>Gifts: All</option></select>
+        <select class="ui-select"><option>Model: All</option></select>
+        <div style="background:var(--panel-bg); padding:8px; border-radius:10px; text-align:center">🗑</div>
+        <div style="background:var(--panel-bg); padding:8px; border-radius:10px; text-align:center">⌄</div>
     </div>
 
-    <div id="wallet-modal" onclick="this.style.display='none'">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 style="margin-top:0">Connect Wallet</h3>
-            <p style="font-size:14px; color:var(--text-secondary)">Choose your preferred wallet to continue</p>
-            <button class="btn-connect" style="width:100%; padding:15px; margin-top:10px">Tonkeeper</button>
-            <button class="btn-connect" style="width:100%; padding:15px; margin-top:10px; background:var(--border-color)">MyTonWallet</button>
-        </div>
+    <div style="text-align:center; padding:60px 20px; color:var(--text-secondary)">
+        <p>No gifts found</p>
+        <button class="btn-connect" style="background:var(--panel-bg); border:1px solid var(--border-color)">Upgrade All Gifts</button>
     </div>
 
-    <div class="footer">
-        <div class="footer-item" onclick="setTab('market', this)">
-            <span class="footer-icon">🌀</span><span>Market</span>
-        </div>
-        <div class="footer-item" onclick="setTab('auctions', this)">
-            <span class="footer-icon">🔨</span><span>Auctions</span>
-        </div>
-        <div class="footer-item" onclick="setTab('lease', this)">
-            <span class="footer-icon">⏱</span><span>Lease</span>
-        </div>
-        <div class="footer-item active" onclick="setTab('mygifts', this)">
-            <span class="footer-icon">🎁</span><span>My Gifts</span>
-        </div>
-        <div class="footer-item" onclick="setTab('gallery', this)">
-            <span class="footer-icon">🏛</span><span>Gallery</span>
-        </div>
-        <div class="footer-item" onclick="setTab('activity', this)">
-            <span class="footer-icon">📈</span><span>Activity</span>
-        </div>
+    <div class="nav-footer">
+        <div class="nav-item"><span class="nav-icon">🌀</span>Market</div>
+        <div class="nav-item"><span class="nav-icon">🔨</span>Auctions</div>
+        <div class="nav-item"><span class="nav-icon">⏱</span>Lease</div>
+        <div class="nav-item active"><span class="nav-icon">🎁</span>My Gifts</div>
+        <div class="nav-item"><span class="nav-icon">🏛</span>Gallery</div>
+        <div class="nav-item"><span class="nav-icon">📈</span>Activity</div>
     </div>
 
     <script>
@@ -249,32 +182,6 @@
         tg.expand();
         tg.headerColor = '#121921';
         tg.backgroundColor = '#121921';
-
-        // Имя пользователя
-        if (tg.initDataUnsafe?.user) {
-            const user = tg.initDataUnsafe.user;
-            document.getElementById('username').innerText = (user.first_name + ' ' + (user.last_name || '')).toUpperCase();
-        }
-
-        function showWallet() {
-            document.getElementById('wallet-modal').style.display = 'flex';
-            tg.HapticFeedback.impactOccurred('medium');
-        }
-
-        function setTab(name, el) {
-            // Убираем активный класс у всех
-            document.querySelectorAll('.footer-item').forEach(i => i.classList.remove('active'));
-            el.classList.add('active');
-            
-            const area = document.getElementById('display-area');
-            tg.HapticFeedback.selectionChanged();
-
-            if(name === 'market') area.innerText = "No gifts listed on market yet.";
-            if(name === 'auctions') area.innerText = "No active auctions found.";
-            if(name === 'mygifts') area.innerText = "You don't have any gifts yet.";
-            if(name === 'activity') area.innerText = "No recent platform activity.";
-            if(name === 'gallery') area.innerText = "Gallery is empty.";
-        }
     </script>
 </body>
 </html>
