@@ -1,187 +1,998 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Automated Gift MarketPlace</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root {
-            --bg-color: #121921;
-            --panel-bg: #1c2630;
-            --accent-blue: #0098ea;
-            --text-main: #ffffff;
-            --text-secondary: #8b949e;
-            --border-color: #2d3846;
-            --switch-off: #2d3846;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Automated Gift MarketPlace</title>
+  <style>
+    :root{
+      --bg:#0e1621;
+      --bg2:#0b121a;
+      --panel:#1b2733;
+      --panel2:#16212c;
+      --panel3:#243240;
+      --stroke:#2a3a4a;
+      --stroke2:#2f4256;
+      --text:#e9f2ff;
+      --muted:#94a8bf;
+      --muted2:#7f94ad;
+      --accent:#19a7ff;
+      --accent2:#0b8fe0;
+      --danger:#ff4d4d;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --r:16px;
+      --r2:14px;
+      --r3:12px;
+      --tap: rgba(25,167,255,.14);
+      --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+    }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0; padding: 0;
-            padding-bottom: 100px;
-        }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--font);
+      background: radial-gradient(1200px 600px at 50% -100px, rgba(25,167,255,.12), transparent 55%),
+                  linear-gradient(180deg, var(--bg2), var(--bg));
+      color:var(--text);
+      overflow:hidden;
+    }
 
-        /* Top Controls */
-        .header {
-            padding: 12px 16px;
-            display: flex; align-items: center; justify-content: space-between;
-            position: sticky; top: 0; background: var(--bg-color); z-index: 10;
-        }
+    /* Telegram safe-area helpers */
+    .app{
+      height:100%;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      display:flex;
+      flex-direction:column;
+    }
 
-        .balance-box {
-            background: var(--panel-bg);
-            padding: 8px 12px; border-radius: 12px;
-            display: flex; align-items: center; gap: 8px;
-            font-weight: 600;
-        }
+    /* Top bar */
+    .topbar{
+      height:54px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      color:var(--text);
+    }
+    .topbar .left, .topbar .right{display:flex; align-items:center; gap:10px;}
+    .topbar .left{flex:1}
+    .icon-btn{
+      width:34px; height:34px;
+      border-radius:999px;
+      display:grid; place-items:center;
+      border:1px solid rgba(255,255,255,.06);
+      background: rgba(255,255,255,.03);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      cursor:pointer;
+      user-select:none;
+      transition: transform .06s ease, background .12s ease, border-color .12s ease;
+    }
+    .icon-btn:active{transform:scale(.97); background:rgba(255,255,255,.06)}
+    .title{
+      flex:1;
+      font-weight:700;
+      letter-spacing:.2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 60vw;
+      opacity:.95;
+    }
+    .kebab{
+      opacity:.85;
+    }
+    .close-x{
+      font-size:18px;
+      width:34px;height:34px;
+    }
 
-        .btn-circle {
-            width: 28px; height: 28px; border-radius: 50%;
-            border: none; background: var(--accent-blue);
-            color: white; font-size: 18px;
-        }
+    /* Balance row */
+    .balance-row{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:0 12px 8px;
+    }
+    .balance-pill{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius:999px;
+      background: rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.06);
+      min-width:120px;
+    }
+    .ton{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      font-weight:800;
+    }
+    .ton svg{width:16px;height:16px}
+    .chev{opacity:.8}
+    .mini-round{
+      width:36px;height:36px;border-radius:999px;
+      display:grid;place-items:center;
+      background: rgba(25,167,255,.16);
+      border:1px solid rgba(25,167,255,.28);
+      color:var(--accent);
+      font-weight:900;
+      cursor:pointer;
+      transition: transform .06s ease;
+    }
+    .mini-round:active{transform:scale(.97)}
+    .avatar-mini{
+      width:36px;height:36px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.08);
+      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      display:grid;place-items:center;
+      overflow:hidden;
+    }
+    .avatar-mini img{width:100%;height:100%;object-fit:cover}
+    .connect{
+      margin-left:auto;
+      padding:10px 14px;
+      border-radius:999px;
+      background: linear-gradient(180deg, var(--accent), var(--accent2));
+      border:0;
+      color:white;
+      font-weight:800;
+      cursor:pointer;
+      display:flex;align-items:center;gap:10px;
+      box-shadow: 0 10px 18px rgba(25,167,255,.18);
+      transition: transform .06s ease, filter .12s ease;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .connect:active{transform:scale(.985)}
+    .connect svg{width:18px;height:18px; filter: drop-shadow(0 2px 3px rgba(0,0,0,.2));}
 
-        .btn-connect {
-            background: var(--accent-blue);
-            color: white; border: none;
-            padding: 10px 16px; border-radius: 14px;
-            font-weight: bold; font-size: 14px;
-        }
+    /* Content shell */
+    .content{
+      flex:1;
+      padding:10px 12px 0;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
 
-        /* Switches Row */
-        .settings-row {
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 8px; padding: 0 16px 12px;
-        }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:var(--r);
+      box-shadow: var(--shadow);
+    }
+    .profile{
+      padding:12px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .gear{
+      width:34px;height:34px;border-radius:999px;
+      display:grid;place-items:center;
+      background: rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+      color: rgba(233,242,255,.9);
+      cursor:pointer;
+      user-select:none;
+    }
+    .profile-mid{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+    }
+    .profile-mid .avatar{
+      width:54px;height:54px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      display:grid;place-items:center;
+    }
+    .profile-mid .avatar img{width:100%;height:100%;object-fit:cover}
+    .profile-mid .name{
+      font-weight:900;
+      letter-spacing:.4px;
+      font-size:12px;
+      opacity:.95;
+      text-transform:uppercase;
+    }
+    .profile-mid .refresh{
+      margin-left:6px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:26px;height:26px;border-radius:999px;
+      border:1px solid rgba(25,167,255,.25);
+      background: rgba(25,167,255,.10);
+      color: var(--accent);
+      vertical-align:middle;
+      cursor:pointer;
+    }
 
-        .switch-card {
-            background: var(--panel-bg);
-            padding: 10px; border-radius: 10px;
-            display: flex; align-items: center; gap: 8px;
-            font-size: 13px;
-        }
+    .stat{
+      width:88px;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .stat .val{
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      gap:6px;
+      font-weight:900;
+      color:var(--text);
+    }
+    .stat .val .ton svg{width:14px;height:14px}
+    .stat.right .val{justify-content:flex-end}
+    .stat.right{text-align:right}
 
-        .toggle {
-            width: 34px; height: 18px;
-            background: var(--switch-off);
-            border-radius: 10px; position: relative;
-        }
+    /* Secondary tabs */
+    .seg-tabs{
+      display:flex;
+      gap:8px;
+      padding:10px;
+      background: rgba(255,255,255,.02);
+      border:1px solid rgba(255,255,255,.05);
+      border-radius:var(--r);
+    }
+    .seg-btn{
+      flex:1;
+      padding:10px 10px;
+      border-radius:12px;
+      text-align:center;
+      font-weight:800;
+      font-size:13px;
+      color:rgba(233,242,255,.86);
+      cursor:pointer;
+      user-select:none;
+      border:1px solid transparent;
+      transition: background .12s ease, border-color .12s ease, color .12s ease;
+      white-space:nowrap;
+    }
+    .seg-btn.active{
+      border-color: rgba(25,167,255,.5);
+      box-shadow: 0 0 0 2px rgba(25,167,255,.15) inset;
+      background: rgba(25,167,255,.08);
+      color: var(--accent);
+    }
+    .seg-btn:active{background:rgba(255,255,255,.05)}
 
-        .toggle.on { background: var(--accent-blue); }
-        .toggle::after {
-            content: ''; position: absolute;
-            width: 14px; height: 14px; background: white;
-            border-radius: 50%; top: 2px; left: 2px;
-            transition: 0.2s;
-        }
-        .toggle.on::after { left: 18px; }
+    /* Filters */
+    .filters{
+      padding:10px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .select{
+      flex:1;
+      min-width: 120px;
+      padding:12px 12px;
+      background: rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:14px;
+      color:var(--text);
+      font-weight:800;
+      font-size:13px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .select .label{color:var(--muted); font-weight:700; font-size:12px}
+    .select .value{display:flex;flex-direction:column;gap:4px}
+    .pill-actions{
+      display:flex; gap:10px; margin-left:auto;
+    }
+    .round-ico{
+      width:40px;height:40px;border-radius:999px;
+      display:grid;place-items:center;
+      background: rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+      color: rgba(233,242,255,.9);
+      cursor:pointer;
+      user-select:none;
+    }
 
-        /* Listing Tabs */
-        .list-tabs {
-            display: flex; padding: 0 16px; gap: 10px;
-            overflow-x: auto; margin-bottom: 16px;
-        }
+    /* Toggles like in screenshots */
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      background: rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+      font-weight:800;
+      color: rgba(233,242,255,.92);
+      cursor:pointer;
+      user-select:none;
+    }
+    .toggle small{font-weight:800; color: var(--muted); margin-left:auto}
+    .switch{
+      width:44px;height:24px;border-radius:999px;
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.10);
+      position:relative;
+      flex:0 0 auto;
+    }
+    .switch::after{
+      content:"";
+      width:18px;height:18px;border-radius:999px;
+      background: rgba(255,255,255,.88);
+      position:absolute;
+      top:50%; transform: translateY(-50%);
+      left:3px;
+      transition:left .14s ease, background .14s ease;
+    }
+    .toggle.on .switch{
+      background: rgba(25,167,255,.25);
+      border-color: rgba(25,167,255,.30);
+    }
+    .toggle.on .switch::after{
+      left:23px;
+      background: rgba(25,167,255,.95);
+    }
+    .info-dot{
+      width:18px;height:18px;border-radius:999px;
+      border:1px solid rgba(25,167,255,.35);
+      color: var(--accent);
+      display:grid;place-items:center;
+      font-size:12px;
+      font-weight:900;
+      opacity:.9;
+    }
 
-        .l-tab {
-            padding: 8px 16px; border-radius: 10px;
-            background: var(--panel-bg); color: var(--text-secondary);
-            font-size: 14px; white-space: nowrap;
-        }
+    /* Sub tabs (Listed/Unlisted...) */
+    .subtabs{
+      display:flex;
+      gap:10px;
+      padding:10px 10px 0;
+    }
+    .subtab{
+      flex:1;
+      text-align:center;
+      padding:10px 10px;
+      border-radius:14px;
+      font-weight:900;
+      font-size:13px;
+      color: rgba(233,242,255,.86);
+      background: rgba(255,255,255,.02);
+      border:1px solid rgba(255,255,255,.04);
+      user-select:none;
+      cursor:pointer;
+    }
+    .subtab.active{
+      border-color: rgba(25,167,255,.55);
+      background: rgba(25,167,255,.08);
+      color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(25,167,255,.15) inset;
+    }
 
-        .l-tab.active {
-            background: #232e3a; color: var(--accent-blue);
-            box-shadow: inset 0 0 0 1px var(--accent-blue);
-        }
+    /* Main panel */
+    .main{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+    .main-inner{
+      flex:1;
+      padding: 10px;
+      overflow:auto;
+      scrollbar-width: thin;
+    }
+    .empty{
+      margin: 18px 0 0;
+      padding: 26px 14px;
+      text-align:center;
+      color: rgba(233,242,255,.90);
+      font-weight:900;
+      font-size:18px;
+    }
+    .empty span{color: var(--accent)}
+    .hint{
+      text-align:center;
+      color: var(--muted);
+      font-weight:700;
+      margin-top:8px;
+      font-size:13px;
+    }
+    .primary{
+      margin: 18px auto 0;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding: 12px 18px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.10);
+      color: rgba(233,242,255,.92);
+      font-weight:900;
+      cursor:pointer;
+      user-select:none;
+    }
 
-        /* Selects */
-        .select-grid {
-            display: grid; grid-template-columns: 1fr 1fr 40px 40px;
-            gap: 8px; padding: 0 16px; align-items: center;
-        }
-
-        .ui-select {
-            background: var(--panel-bg); color: white;
-            border: 1px solid var(--border-color);
-            padding: 10px; border-radius: 10px; font-size: 13px;
-        }
-
-        /* Main Footer */
-        .nav-footer {
-            position: fixed; bottom: 0; width: 100%;
-            background: var(--panel-bg);
-            display: flex; justify-content: space-around;
-            padding: 10px 0 25px; border-top: 1px solid var(--border-color);
-        }
-
-        .nav-item {
-            text-align: center; color: var(--text-secondary);
-            font-size: 11px; text-decoration: none;
-        }
-
-        .nav-item.active { color: var(--accent-blue); }
-        .nav-icon { font-size: 24px; display: block; margin-bottom: 4px; }
-
-    </style>
+    /* Bottom nav */
+    .bottom{
+      padding:10px 10px calc(10px + env(safe-area-inset-bottom));
+      background: linear-gradient(180deg, rgba(10,16,24,0), rgba(10,16,24,.55) 30%, rgba(10,16,24,.75));
+      border-top: 1px solid rgba(255,255,255,.05);
+    }
+    .nav{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:6px;
+    }
+    .nav-item{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      padding:10px 6px;
+      border-radius:14px;
+      color: rgba(233,242,255,.78);
+      font-weight:800;
+      font-size:12px;
+      user-select:none;
+      cursor:pointer;
+    }
+    .nav-item svg{width:22px;height:22px;opacity:.9}
+    .nav-item.active{
+      background: rgba(25,167,255,.12);
+      color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(25,167,255,.14) inset;
+    }
+    .nav-item.active svg{opacity:1}
+    .nav-item:active{background: rgba(255,255,255,.05)}
+    .footer-tag{
+      text-align:center;
+      color: rgba(233,242,255,.55);
+      margin-top:10px;
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+    .footer-tag a{color: rgba(25,167,255,.95); text-decoration:none}
+    /* Small phones */
+    @media (max-width:360px){
+      .title{max-width: 54vw}
+      .connect{padding:10px 12px}
+      .seg-btn{font-size:12px}
+    }
+  </style>
 </head>
 <body>
+<div class="app" id="app">
+  <!-- Top line (Telegram header imitation) -->
+  <div class="topbar">
+    <div class="left">
+      <div class="icon-btn" id="backBtn" title="Back" aria-label="Back">
+        <!-- back arrow -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </div>
+      <div class="title" id="pageTitle">Automated Gift MarketPlace</div>
+    </div>
+    <div class="right">
+      <div class="icon-btn kebab" title="Menu" aria-label="Menu">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="5" r="2"></circle>
+          <circle cx="12" cy="12" r="2"></circle>
+          <circle cx="12" cy="19" r="2"></circle>
+        </svg>
+      </div>
+      <div class="icon-btn close-x" id="closeBtn" title="Close" aria-label="Close">✕</div>
+    </div>
+  </div>
 
-    <div class="header">
-        <div class="balance-box">
-            <span style="color:var(--accent-blue)">💎</span> 0.002
-            <button class="btn-circle">+</button>
-            <button class="btn-circle" style="background:var(--border-color)">-</button>
+  <!-- Balance row -->
+  <div class="balance-row">
+    <div class="balance-pill" id="balancePill">
+      <div class="ton">
+        <svg viewBox="0 0 48 48" fill="none">
+          <path d="M24 4c9.7 0 17.6 7.9 17.6 17.6S33.7 39.2 24 39.2 6.4 31.3 6.4 21.6 14.3 4 24 4Z" fill="rgba(25,167,255,.16)" />
+          <path d="M24 8.5c7.2 0 13.1 5.9 13.1 13.1S31.2 34.7 24 34.7 10.9 28.8 10.9 21.6 16.8 8.5 24 8.5Z" stroke="rgba(25,167,255,.45)" stroke-width="2"/>
+          <path d="M18.5 18.5h11l-5.5 11-5.5-11Z" fill="rgba(25,167,255,.95)"/>
+        </svg>
+        <span id="balanceText">0</span>
+      </div>
+      <span class="chev">▾</span>
+    </div>
+
+    <div class="mini-round" title="Plus">+</div>
+    <div class="mini-round" title="Minus">−</div>
+
+    <div class="avatar-mini" title="Avatar">
+      <img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72'%3E%3Cdefs%3E%3CradialGradient id='g' cx='30%25' cy='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='.18'/%3E%3Cstop offset='100%25' stop-color='%2319a7ff' stop-opacity='.25'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='72' height='72' rx='36' fill='url(%23g)'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='22' fill='%23e9f2ff'%3EP%3C/text%3E%3C/svg%3E"/>
+    </div>
+
+    <button class="connect" id="connectBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 11V7a4 4 0 0 0-8 0v4"/>
+        <rect x="6" y="11" width="12" height="10" rx="2"></rect>
+      </svg>
+      Connect Wallet
+    </button>
+  </div>
+
+  <div class="content">
+    <!-- Profile card -->
+    <div class="card profile">
+      <div class="gear" title="Settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/>
+          <path d="M19.4 15a7.8 7.8 0 0 0 .1-2l2-1.2-2-3.4-2.2.6a7.5 7.5 0 0 0-1.7-1l-.3-2.2h-4l-.3 2.2a7.5 7.5 0 0 0-1.7 1l-2.2-.6-2 3.4 2 1.2a7.8 7.8 0 0 0 .1 2l-2 1.2 2 3.4 2.2-.6c.5.4 1.1.7 1.7 1l.3 2.2h4l.3-2.2c.6-.3 1.2-.6 1.7-1l2.2.6 2-3.4-2-1.2Z"/>
+        </svg>
+      </div>
+
+      <div class="stat">
+        <div style="font-weight:800;">Volume</div>
+        <div class="val">
+          <span class="ton">
+            <svg viewBox="0 0 48 48" fill="none">
+              <path d="M18.5 18.5h11l-5.5 11-5.5-11Z" fill="rgba(25,167,255,.95)"/>
+            </svg>
+          </span>
+          <span id="volumeText">0</span>
         </div>
-        <button class="btn-connect" onclick="tg.HapticFeedback.impactOccurred('heavy')">Connect Wallet</button>
-    </div>
+      </div>
 
-    <div class="settings-row">
-        <div class="switch-card">
-            <div class="toggle"></div> Internal Purchase
+      <div class="profile-mid">
+        <div class="avatar">
+          <img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='108' height='108'%3E%3Cdefs%3E%3CradialGradient id='g' cx='30%25' cy='25%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff' stop-opacity='.18'/%3E%3Cstop offset='100%25' stop-color='%2319a7ff' stop-opacity='.25'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='108' height='108' rx='54' fill='url(%23g)'/%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='32' fill='%23e9f2ff'%3EP%3C/text%3E%3C/svg%3E"/>
         </div>
-        <div class="switch-card">
-            <div class="toggle"></div> Lite UI(Beta!)
+        <div class="name">
+          <span id="userName">NEW USER</span>
+          <span class="refresh" id="refreshBtn" title="Refresh" aria-label="Refresh">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12a9 9 0 1 1-3-6.7"/>
+              <path d="M21 3v6h-6"/>
+            </svg>
+          </span>
         </div>
-        <div class="switch-card" style="grid-column: span 2;">
-            <div class="toggle on"></div> Performance <span style="color:var(--accent-blue)">ⓘ</span>
+      </div>
+
+      <div class="stat right">
+        <div style="font-weight:800;">Referrals</div>
+        <div class="val" style="justify-content:flex-end">
+          <span id="refText">0</span>
         </div>
+      </div>
     </div>
 
-    <div class="list-tabs">
-        <div class="l-tab active">Listed</div>
-        <div class="l-tab">Unlisted</div>
-        <div class="l-tab">On-Chain</div>
-        <div class="l-tab">Instant Transfer</div>
+    <!-- Secondary top tabs (Market / Gallery section tabs imitation) -->
+    <div class="seg-tabs" id="marketTabs">
+      <div class="seg-btn active" data-market-tab="gifts">Gifts</div>
+      <div class="seg-btn" data-market-tab="activity">Activity</div>
+      <div class="seg-btn" data-market-tab="orders">Orders</div>
+      <div class="seg-btn" data-market-tab="deals">Deals</div>
+      <div class="seg-btn" data-market-tab="offers">Offers</div>
     </div>
 
-    <div class="select-grid">
-        <select class="ui-select"><option>Gifts: All</option></select>
-        <select class="ui-select"><option>Model: All</option></select>
-        <div style="background:var(--panel-bg); padding:8px; border-radius:10px; text-align:center">🗑</div>
-        <div style="background:var(--panel-bg); padding:8px; border-radius:10px; text-align:center">⌄</div>
+    <!-- Dynamic main card -->
+    <div class="card main">
+      <div id="screenRoot"></div>
     </div>
+  </div>
 
-    <div style="text-align:center; padding:60px 20px; color:var(--text-secondary)">
-        <p>No gifts found</p>
-        <button class="btn-connect" style="background:var(--panel-bg); border:1px solid var(--border-color)">Upgrade All Gifts</button>
+  <div class="bottom">
+    <div class="nav" id="bottomNav">
+      <div class="nav-item active" data-screen="market">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 6h15l-2 8H7L6 6Z"/>
+          <path d="M6 6 5 3H2"/>
+          <circle cx="9" cy="20" r="1.6"/>
+          <circle cx="17" cy="20" r="1.6"/>
+        </svg>
+        <div>Market</div>
+      </div>
+      <div class="nav-item" data-screen="auctions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2 4 12l8 8 10-10-8-8Z"/>
+          <path d="M4 12 2 14l8 8 2-2"/>
+        </svg>
+        <div>Auctions</div>
+      </div>
+      <div class="nav-item" data-screen="lease">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="8"/>
+          <path d="M12 7v5l3 2"/>
+        </svg>
+        <div>Lease</div>
+      </div>
+      <div class="nav-item" data-screen="mygifts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 12v9H4v-9"/>
+          <path d="M2 7h20v5H2z"/>
+          <path d="M12 22V7"/>
+          <path d="M12 7c-2.5 0-4-1.5-4-3 0-1.3 1-2 2.2-2C12 2 12 7 12 7Z"/>
+          <path d="M12 7c2.5 0 4-1.5 4-3 0-1.3-1-2-2.2-2C12 2 12 7 12 7Z"/>
+        </svg>
+        <div>My Gifts</div>
+      </div>
+      <div class="nav-item" data-screen="gallery">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 6h16v14H4z"/>
+          <path d="M8 6V4h8v2"/>
+          <path d="M8 13l2.2 2.2L14 11l4 4"/>
+        </svg>
+        <div>Gallery</div>
+      </div>
+      <div class="nav-item" data-screen="activity">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 12h3l2-6 4 12 2-6h5"/>
+        </svg>
+        <div>Activity</div>
+      </div>
     </div>
+    <div class="footer-tag"><a href="#" id="botTag">@Tonnel_Network_bot</a></div>
+  </div>
+</div>
 
-    <div class="nav-footer">
-        <div class="nav-item"><span class="nav-icon">🌀</span>Market</div>
-        <div class="nav-item"><span class="nav-icon">🔨</span>Auctions</div>
-        <div class="nav-item"><span class="nav-icon">⏱</span>Lease</div>
-        <div class="nav-item active"><span class="nav-icon">🎁</span>My Gifts</div>
-        <div class="nav-item"><span class="nav-icon">🏛</span>Gallery</div>
-        <div class="nav-item"><span class="nav-icon">📈</span>Activity</div>
-    </div>
+<script>
+(() => {
+  // --- Telegram WebApp integration (safe no-op outside Telegram) ---
+  const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  try {
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      // Optional: adapt to Telegram theme if you want later
+      // document.documentElement.style.setProperty('--bg', tg.themeParams?.bg_color || '#0e1621');
+    }
+  } catch (_) {}
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.headerColor = '#121921';
-        tg.backgroundColor = '#121921';
-    </script>
+  // --- Simple SPA state ---
+  const state = {
+    screen: 'market',           // bottom nav
+    marketTab: 'gifts',         // top segmented
+    myGiftsTab: 'listed',       // subtabs in "My Gifts"
+    toggles: {
+      performance: true,
+      internalPurchase: false,
+      liteUI: false,
+      activeOrders: true
+    }
+  };
+
+  const els = {
+    pageTitle: document.getElementById('pageTitle'),
+    marketTabs: document.getElementById('marketTabs'),
+    screenRoot: document.getElementById('screenRoot'),
+    bottomNav: document.getElementById('bottomNav'),
+    connectBtn: document.getElementById('connectBtn'),
+    closeBtn: document.getElementById('closeBtn'),
+    backBtn: document.getElementById('backBtn'),
+    refreshBtn: document.getElementById('refreshBtn'),
+  };
+
+  function h(tag, attrs={}, ...children){
+    const el = document.createElement(tag);
+    for(const [k,v] of Object.entries(attrs)){
+      if(k === 'class') el.className = v;
+      else if(k === 'dataset') Object.assign(el.dataset, v);
+      else if(k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2), v);
+      else if(v === false || v === null || v === undefined) {}
+      else el.setAttribute(k, v);
+    }
+    for(const ch of children){
+      if(ch === null || ch === undefined) continue;
+      if(typeof ch === 'string') el.appendChild(document.createTextNode(ch));
+      else el.appendChild(ch);
+    }
+    return el;
+  }
+
+  function setActiveNav(){
+    document.querySelectorAll('.nav-item').forEach(n => {
+      n.classList.toggle('active', n.dataset.screen === state.screen);
+    });
+  }
+  function setActiveMarketTabs(){
+    document.querySelectorAll('#marketTabs .seg-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.marketTab === state.marketTab);
+    });
+  }
+
+  function render(){
+    setActiveNav();
+    setActiveMarketTabs();
+
+    // Title & which top tabs to show (in original: tabs appear on Gallery section too)
+    if(state.screen === 'market'){
+      els.pageTitle.textContent = 'Automated Gift MarketPlace';
+      els.marketTabs.style.display = '';
+    } else if(state.screen === 'gallery'){
+      els.pageTitle.textContent = 'Automated Gift MarketPlace';
+      els.marketTabs.style.display = '';
+    } else {
+      els.pageTitle.textContent = 'Automated Gift MarketPlace';
+      els.marketTabs.style.display = '';
+    }
+
+    // Screen root
+    els.screenRoot.innerHTML = '';
+    if(state.screen === 'market'){
+      els.screenRoot.appendChild(renderMarket());
+    } else if(state.screen === 'mygifts'){
+      els.screenRoot.appendChild(renderMyGifts());
+    } else if(state.screen === 'auctions'){
+      els.screenRoot.appendChild(renderAuctions());
+    } else if(state.screen === 'lease'){
+      els.screenRoot.appendChild(renderLease());
+    } else if(state.screen === 'gallery'){
+      els.screenRoot.appendChild(renderGallery());
+    } else if(state.screen === 'activity'){
+      els.screenRoot.appendChild(renderGlobalActivity());
+    }
+  }
+
+  // --- UI blocks ---
+  function renderFiltersRow(showActiveOrdersToggle=false){
+    const gifts = h('div',{class:'select', role:'button', tabindex:'0'}, 
+      h('div',{class:'value'}, h('div',{class:'label'}, 'Gifts'), h('div',{}, 'All')),
+      h('div',{style:'opacity:.8; font-weight:900;'}, '▾')
+    );
+    const model = h('div',{class:'select', role:'button', tabindex:'0'},
+      h('div',{class:'value'}, h('div',{class:'label'}, 'Model'), h('div',{}, 'All')),
+      h('div',{style:'opacity:.8; font-weight:900;'}, '▾')
+    );
+
+    const actions = h('div',{class:'pill-actions'},
+      h('div',{class:'round-ico', title:'Delete'}, 
+        h('svg',{viewBox:'0 0 24 24', fill:'none', stroke:'currentColor','stroke-width':'2.1','stroke-linecap':'round','stroke-linejoin':'round'},
+          h('path',{d:'M3 6h18'}), h('path',{d:'M8 6V4h8v2'}), h('path',{d:'M6 6l1 16h10l1-16'}), h('path',{d:'M10 11v6'}), h('path',{d:'M14 11v6'})
+        )
+      ),
+      h('div',{class:'round-ico', title:'Timer'}, 
+        h('svg',{viewBox:'0 0 24 24', fill:'none', stroke:'currentColor','stroke-width':'2.1','stroke-linecap':'round','stroke-linejoin':'round'},
+          h('path',{d:'M12 2v2'}), h('path',{d:'M7 4h10'}), h('circle',{cx:'12', cy:'13', r:'8'}), h('path',{d:'M12 13l3-2'})
+        )
+      ),
+      h('div',{class:'round-ico', title:'More'}, '▾')
+    );
+
+    const row = h('div',{class:'row'}, gifts, model, actions);
+    if(!showActiveOrdersToggle) return row;
+
+    const active = h('div',{class: 'toggle ' + (state.toggles.activeOrders ? 'on':''),
+      onclick: () => { state.toggles.activeOrders = !state.toggles.activeOrders; render(); }
+    },
+      h('div',{class:'switch', 'aria-hidden':'true'}),
+      h('div',{}, 'Active Orders'),
+    );
+    active.style.minWidth = '180px';
+    row.appendChild(active);
+    return row;
+  }
+
+  function renderMarket(){
+    // Depending on marketTab show different empty states like screenshots
+    const wrap = h('div',{class:'main-inner'});
+    // Filters row similar to Market/Orders/Offers screens
+    wrap.appendChild(h('div',{class:'filters'},
+      h('div',{class:'row'}, 
+        h('div',{class:'select', role:'button', tabindex:'0'}, 
+          h('div',{class:'value'}, h('div',{class:'label'}, 'Gifts'), h('div',{}, 'All')),
+          h('div',{style:'opacity:.8; font-weight:900;'}, '▾')
+        ),
+        h('div',{class:'select', role:'button', tabindex:'0'}, 
+          h('div',{class:'value'}, h('div',{class:'label'}, 'Status'), h('div',{}, 'All')),
+          h('div',{style:'opacity:.8; font-weight:900;'}, '▾')
+        )
+      )
+    ));
+
+    if(state.marketTab === 'offers'){
+      wrap.appendChild(h('div',{class:'empty'}, "You don't have any ", h('span',{},'offers')));
+    } else if(state.marketTab === 'orders'){
+      // like screenshot: toggle + create button
+      wrap.firstChild.innerHTML = ''; // replace filters to match orders view
+      wrap.appendChild(h('div',{class:'filters'}, renderFiltersRow(true)));
+      wrap.appendChild(h('div',{class:'empty'}, "You don't have any ", h('span',{},'active orders')));
+      wrap.appendChild(h('div',{style:'text-align:center;'}, h('div',{class:'primary', onclick: () => toast('Пока нет ордеров. Это кнопка-заглушка.')}, 'Create Buy Order')));
+    } else if(state.marketTab === 'activity'){
+      wrap.appendChild(h('div',{class:'empty'}, "No ", h('span',{},'activity'), " yet"));
+      wrap.appendChild(h('div',{class:'hint'}, 'Когда появятся действия, они будут отображаться здесь.'));
+    } else if(state.marketTab === 'deals'){
+      wrap.appendChild(h('div',{class:'empty'}, "No ", h('span',{},'deals'), " yet"));
+      wrap.appendChild(h('div',{class:'hint'}, 'Сделки появятся после первых размещений.'));
+    } else { // gifts
+      wrap.appendChild(h('div',{class:'empty'}, "No ", h('span',{},'gifts'), " yet"));
+      wrap.appendChild(h('div',{class:'hint'}, 'В этом боте ещё никто не пользовался маркетом — всё будет пусто.'));
+    }
+
+    return wrap;
+  }
+
+  function renderMyGifts(){
+    const outer = h('div', {});
+    // Top toggles row like screenshot
+    const toggles = h('div',{class:'filters'},
+      h('div',{class:'row'},
+        makeToggle('Internal Purchase', 'internalPurchase', false),
+        makeToggle('Lite UI(Beta!)', 'liteUI', false),
+      ),
+      h('div',{class:'row'},
+        makeToggle('Performance', 'performance', true),
+      )
+    );
+    outer.appendChild(toggles);
+
+    // Subtabs
+    const tabs = h('div',{class:'subtabs'},
+      makeSubtab('Listed','listed'),
+      makeSubtab('Unlisted','unlisted'),
+      makeSubtab('On-Chain','onchain'),
+      makeSubtab('Instant Transfer','instant')
+    );
+    outer.appendChild(tabs);
+
+    // Filters row (Gifts/Model + icons)
+    const inner = h('div',{class:'main-inner'});
+    inner.appendChild(h('div',{class:'filters'}, renderFiltersRow(false)));
+
+    // Empty content varies
+    if(state.myGiftsTab === 'onchain'){
+      inner.appendChild(h('div',{class:'empty'}, 'Connect Wallet'));
+      inner.appendChild(h('div',{style:'text-align:center;'}, h('button',{class:'connect', type:'button', style:'margin:8px auto 0;', onclick: () => toast('Кошелёк не подключаем — это UI-копия.')},
+        h('svg',{viewBox:'0 0 24 24', fill:'none', stroke:'white','stroke-width':'2.2','stroke-linecap':'round','stroke-linejoin':'round'},
+          h('path',{d:'M16 11V7a4 4 0 0 0-8 0v4'}), h('rect',{x:'6',y:'11',width:'12',height:'10',rx:'2'})
+        ),
+        'Connect Wallet'
+      )));
+    } else {
+      inner.appendChild(h('div',{class:'empty'}, "No gifts yet"));
+      inner.appendChild(h('div',{class:'hint'}, "Want to sell your Gift? Transfer it to ", h('span',{style:'color:var(--accent);'},'@GiftRelayer')));
+    }
+
+    outer.appendChild(inner);
+    return outer;
+  }
+
+  function renderAuctions(){
+    const wrap = h('div',{class:'main-inner'});
+    wrap.appendChild(h('div',{class:'filters'}, renderFiltersRow(false)));
+    wrap.appendChild(h('div',{class:'empty'}, "No ", h('span',{},'auctions'), " yet"));
+    wrap.appendChild(h('div',{class:'hint'}, 'Аукционы появятся, когда начнутся размещения.'));
+    return wrap;
+  }
+
+  function renderLease(){
+    const wrap = h('div',{class:'main-inner'});
+    wrap.appendChild(h('div',{class:'filters'}, renderFiltersRow(false)));
+    wrap.appendChild(h('div',{class:'empty'}, "No ", h('span',{},'leases'), " yet"));
+    wrap.appendChild(h('div',{class:'hint'}, 'Аренда появится после добавления первых гифтов.'));
+    return wrap;
+  }
+
+  function renderGallery(){
+    const wrap = h('div',{class:'main-inner'});
+    wrap.appendChild(h('div',{class:'filters'},
+      h('div',{class:'row'},
+        h('div',{class:'select', role:'button', tabindex:'0'}, 
+          h('div',{class:'value'}, h('div',{class:'label'}, 'Gifts'), h('div',{}, 'All')),
+          h('div',{style:'opacity:.8; font-weight:900;'}, '▾')
+        ),
+        h('div',{class:'select', role:'button', tabindex:'0'}, 
+          h('div',{class:'value'}, h('div',{class:'label'}, 'Model'), h('div',{}, 'All')),
+          h('div',{style:'opacity:.8; font-weight:900;'}, '▾')
+        ),
+        h('div',{class:'pill-actions'},
+          h('div',{class:'round-ico', title:'Sort'}, 
+            h('svg',{viewBox:'0 0 24 24', fill:'none', stroke:'currentColor','stroke-width':'2.1','stroke-linecap':'round','stroke-linejoin':'round'},
+              h('path',{d:'M10 3H3v7'}), h('path',{d:'M3 3l7 7'}), h('path',{d:'M14 21h7v-7'}), h('path',{d:'M21 21l-7-7'})
+            )
+          ),
+          h('div',{class:'round-ico', title:'Delete'}, 
+            h('svg',{viewBox:'0 0 24 24', fill:'none', stroke:'currentColor','stroke-width':'2.1','stroke-linecap':'round','stroke-linejoin':'round'},
+              h('path',{d:'M3 6h18'}), h('path',{d:'M8 6V4h8v2'}), h('path',{d:'M6 6l1 16h10l1-16'})
+            )
+          ),
+          h('div',{class:'round-ico', title:'More'}, '▾')
+        )
+      )
+    ));
+    wrap.appendChild(h('div',{class:'empty'}, "No items in ", h('span',{},'gallery')));
+    wrap.appendChild(h('div',{class:'hint'}, 'Здесь будут карточки, когда появятся гифты/лоты.'));
+    return wrap;
+  }
+
+  function renderGlobalActivity(){
+    const wrap = h('div',{class:'main-inner'});
+    wrap.appendChild(h('div',{class:'filters'}, renderFiltersRow(false)));
+    wrap.appendChild(h('div',{class:'empty'}, "No ", h('span',{},'activity'), " yet"));
+    wrap.appendChild(h('div',{class:'hint'}, 'События появятся после первых действий пользователей.'));
+    return wrap;
+  }
+
+  function makeToggle(label, key, defaultOn){
+    // keep initial in state as is
+    const on = !!state.toggles[key];
+    return h('div',{class:'toggle '+(on?'on':''), onclick: () => { state.toggles[key]=!state.toggles[key]; render(); }},
+      h('div',{class:'switch', 'aria-hidden':'true'}),
+      h('div',{}, label),
+      h('div',{class:'info-dot', title:'Info'}, 'i'),
+    );
+  }
+  function makeSubtab(label, key){
+    const el = h('div',{class:'subtab '+(state.myGiftsTab===key?'active':''), onclick:() => {state.myGiftsTab=key; render();}}, label);
+    return el;
+  }
+
+  // Market tab switching
+  document.querySelectorAll('[data-market-tab]').forEach(b => {
+    b.addEventListener('click', () => {
+      state.marketTab = b.dataset.marketTab;
+      render();
+    });
+  });
+
+  // Bottom nav switching
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.addEventListener('click', () => {
+      state.screen = n.dataset.screen;
+      render();
+    });
+  });
+
+  // Buttons (no real wallet / no NFT logic)
+  function toast(msg){
+    const t = h('div',{style:`
+      position:fixed; left:50%; bottom:94px; transform:translateX(-50%);
+      background: rgba(10,16,24,.92);
+      border:1px solid rgba(255,255,255,.10);
+      color: rgba(233,242,255,.95);
+      padding:10px 12px; border-radius:12px;
+      font-weight:800; font-size:13px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      z-index:9999;
+      max-width: 92vw;
+      text-align:center;
+    `}, msg);
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .18s ease'; }, 1400);
+    setTimeout(() => t.remove(), 1750);
+  }
+
+  els.connectBtn.addEventListener('click', () => toast('Wallet отключён в этой копии (UI only).'));
+  els.closeBtn.addEventListener('click', () => { if(tg) tg.close(); else toast('Close работает только в Telegram.'); });
+  els.backBtn.addEventListener('click', () => toast('Back: в оригинале это навигация Telegram.'));
+  els.refreshBtn.addEventListener('click', () => toast('Обновление: пока данных нет (новый бот).'));
+
+  // Defaults: empty account
+  document.getElementById('balanceText').textContent = '0.000';
+  document.getElementById('volumeText').textContent = '0';
+  document.getElementById('refText').textContent = '0';
+  document.getElementById('userName').textContent = (tg?.initDataUnsafe?.user?.first_name || 'NEW USER');
+
+  // Initial render
+  render();
+})();
+</script>
 </body>
 </html>
