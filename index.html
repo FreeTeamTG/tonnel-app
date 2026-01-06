@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TonnelLink Marketplace</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            background-color: #0d1117; /* Глубокий темный как у Tonnel */
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            margin: 0; padding: 0;
+            user-select: none;
+        }
+        .app-container { padding: 16px; }
+        
+        /* Шапка с профилем */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 24px;
+        }
+        .user-info { display: flex; align-items: center; gap: 8px; }
+        .user-avatar { width: 32px; height: 32px; background: #232931; border-radius: 50%; }
+
+        /* Карточка баланса */
+        .balance-card {
+            background: linear-gradient(135deg, #1c2128 0%, #0d1117 100%);
+            border: 1px solid #30363d;
+            border-radius: 20px;
+            padding: 24px; text-align: center;
+            margin-bottom: 24px;
+        }
+        .balance-label { color: #8b949e; font-size: 14px; margin-bottom: 8px; }
+        .balance-value { font-size: 36px; font-weight: 800; letter-spacing: -1px; }
+        
+        /* Сетка подарков */
+        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+        .gifts-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+        }
+        .gift-item {
+            background: #161b22; border: 1px solid #30363d;
+            border-radius: 16px; padding: 12px; text-align: center;
+            transition: transform 0.1s;
+        }
+        .gift-item:active { transform: scale(0.97); }
+        .gift-image { 
+            width: 100%; aspect-ratio: 1/1; 
+            background: #0d1117; border-radius: 12px; margin-bottom: 8px; 
+        }
+        .gift-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+        .gift-price { color: #0088cc; font-weight: 700; font-size: 14px; }
+
+        /* Кнопка Connect */
+        .btn-main {
+            background: #0088cc; color: white; border: none;
+            width: 100%; padding: 14px; border-radius: 12px;
+            font-size: 16px; font-weight: 600; margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div class="user-info">
+                <div class="user-avatar" id="avatar"></div>
+                <span id="username">User</span>
+            </div>
+            <div style="color: #0088cc; font-weight: 600;">Wallet 💳</div>
+        </div>
+
+        <div class="balance-card">
+            <div class="balance-label">Total Balance</div>
+            <div class="balance-value" id="balance">0.00 TON</div>
+            <button class="btn-main" onclick="connectWallet()">Connect Tonkeeper</button>
+        </div>
+
+        <div class="section-title">Marketplace</div>
+        <div class="gifts-grid">
+            <div class="gift-item">
+                <div class="gift-image"></div>
+                <div class="gift-name">Sparkling Wine</div>
+                <div class="gift-price">12 TON</div>
+            </div>
+            <div class="gift-item">
+                <div class="gift-image"></div>
+                <div class="gift-name">Milk Chocolate</div>
+                <div class="gift-price">8 TON</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.backgroundColor = '#0d1117';
+        tg.headerColor = '#0d1117';
+
+        if (tg.initDataUnsafe.user) {
+            document.getElementById('username').innerText = tg.initDataUnsafe.user.first_name;
+        }
+
+        function connectWallet() {
+            tg.showPopup({
+                title: 'TonConnect',
+                message: 'Подключить Tonkeeper для совершения покупок?',
+                buttons: [{id: 'ok', type: 'default', text: 'Подключить'}, {type: 'cancel'}]
+            });
+        }
+    </script>
+</body>
+</html>
