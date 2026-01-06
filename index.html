@@ -1,112 +1,279 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>TonnelLink Marketplace</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Automated Gift MarketPlace</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        :root {
+            --bg-color: #121921;
+            --panel-bg: #1c2630;
+            --accent-blue: #0098ea;
+            --text-main: #ffffff;
+            --text-secondary: #8b949e;
+            --border-color: #2d3846;
+            --tab-active: #232e3a;
+        }
+
         body {
-            background-color: #0d1117; /* Глубокий темный как у Tonnel */
-            color: #ffffff;
-            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0; padding: 0;
+            overflow-x: hidden;
             user-select: none;
         }
-        .app-container { padding: 16px; }
-        
-        /* Шапка с профилем */
+
+        /* Header */
         .header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 24px;
+            padding: 12px 16px;
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--bg-color);
+            position: sticky; top: 0; z-index: 100;
         }
-        .user-info { display: flex; align-items: center; gap: 8px; }
-        .user-avatar { width: 32px; height: 32px; background: #232931; border-radius: 50%; }
 
-        /* Карточка баланса */
-        .balance-card {
-            background: linear-gradient(135deg, #1c2128 0%, #0d1117 100%);
-            border: 1px solid #30363d;
-            border-radius: 20px;
-            padding: 24px; text-align: center;
-            margin-bottom: 24px;
+        .balance-chip {
+            background: var(--panel-bg);
+            padding: 6px 10px;
+            border-radius: 10px;
+            display: flex; align-items: center; gap: 8px;
+            font-size: 14px; font-weight: 600;
         }
-        .balance-label { color: #8b949e; font-size: 14px; margin-bottom: 8px; }
-        .balance-value { font-size: 36px; font-weight: 800; letter-spacing: -1px; }
-        
-        /* Сетка подарков */
-        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
-        .gifts-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-        }
-        .gift-item {
-            background: #161b22; border: 1px solid #30363d;
-            border-radius: 16px; padding: 12px; text-align: center;
-            transition: transform 0.1s;
-        }
-        .gift-item:active { transform: scale(0.97); }
-        .gift-image { 
-            width: 100%; aspect-ratio: 1/1; 
-            background: #0d1117; border-radius: 12px; margin-bottom: 8px; 
-        }
-        .gift-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
-        .gift-price { color: #0088cc; font-weight: 700; font-size: 14px; }
 
-        /* Кнопка Connect */
-        .btn-main {
-            background: #0088cc; color: white; border: none;
-            width: 100%; padding: 14px; border-radius: 12px;
-            font-size: 16px; font-weight: 600; margin-top: 20px;
+        .controls { display: flex; gap: 6px; }
+        .btn-sm {
+            width: 28px; height: 28px;
+            border-radius: 50%; border: none;
+            background: var(--accent-blue); color: white;
+            font-size: 18px; display: flex; align-items: center; justify-content: center;
+        }
+
+        .btn-connect {
+            background: var(--accent-blue);
+            color: white; border: none;
+            padding: 8px 14px; border-radius: 12px;
+            font-weight: 700; font-size: 13px;
+        }
+
+        /* Profile Area */
+        .profile-section {
+            background: var(--panel-bg);
+            margin: 10px 16px;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .main-avatar {
+            width: 72px; height: 72px;
+            border-radius: 50%;
+            border: 3px solid var(--border-color);
+            margin-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            margin-top: 15px; border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        .stat-label { color: var(--text-secondary); font-size: 12px; margin-bottom: 4px; }
+        .stat-value { font-weight: 700; font-size: 16px; }
+
+        /* Navigation Tabs */
+        .sub-nav {
+            display: flex; gap: 15px;
+            padding: 0 16px 10px;
+            overflow-x: auto;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sub-tab {
+            color: var(--text-secondary);
+            font-size: 14px; padding: 8px 12px;
+            white-space: nowrap; border-radius: 8px;
+        }
+
+        .sub-tab.active {
+            background: var(--tab-active);
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        /* Filters & Switches (из скрина image_f20c21) */
+        .filters-row {
+            padding: 12px 16px;
+            display: flex; gap: 10px;
+            overflow-x: auto;
+        }
+
+        .filter-select {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            color: white; padding: 8px 12px;
+            border-radius: 10px; font-size: 13px;
+        }
+
+        .switch-box {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--panel-bg);
+            padding: 8px 12px; border-radius: 10px;
+            font-size: 13px;
+        }
+
+        /* Content Area */
+        .main-content {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Footer */
+        .footer {
+            position: fixed; bottom: 0; width: 100%;
+            background: var(--panel-bg);
+            display: flex; justify-content: space-around;
+            padding: 10px 0 25px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-item {
+            display: flex; flex-direction: column; align-items: center;
+            color: var(--text-secondary); text-decoration: none;
+            font-size: 10px; gap: 4px;
+        }
+
+        .footer-item.active { color: var(--accent-blue); }
+        .footer-icon { font-size: 22px; }
+
+        /* Modal Wallet */
+        #wallet-modal {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.8);
+            z-index: 1000; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: var(--panel-bg); width: 80%;
+            padding: 24px; border-radius: 20px; text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <div class="header">
-            <div class="user-info">
-                <div class="user-avatar" id="avatar"></div>
-                <span id="username">User</span>
+
+    <div class="header">
+        <div class="balance-chip">
+            <span style="color: var(--accent-blue)">💎</span> 0.002
+            <div class="controls">
+                <button class="btn-sm">+</button>
+                <button class="btn-sm" style="background: var(--border-color)">−</button>
             </div>
-            <div style="color: #0088cc; font-weight: 600;">Wallet 💳</div>
+        </div>
+        <button class="btn-connect" onclick="showWallet()">Connect Wallet</button>
+    </div>
+
+    <div id="page-profile">
+        <div class="profile-section">
+            <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="main-avatar" id="avatar">
+            <div id="username" style="font-weight: 800; font-size: 18px;">USER</div>
+            <div class="stats-grid">
+                <div>
+                    <div class="stat-label">Volume</div>
+                    <div class="stat-value" style="color: var(--accent-blue)">💎 7.4</div>
+                </div>
+                <div>
+                    <div class="stat-label">Referrals</div>
+                    <div class="stat-value">0</div>
+                </div>
+            </div>
         </div>
 
-        <div class="balance-card">
-            <div class="balance-label">Total Balance</div>
-            <div class="balance-value" id="balance">0.00 TON</div>
-            <button class="btn-main" onclick="connectWallet()">Connect Tonkeeper</button>
+        <div class="sub-nav">
+            <div class="sub-tab active">Gifts</div>
+            <div class="sub-tab">Activity</div>
+            <div class="sub-tab">Orders</div>
+            <div class="sub-tab">Deals</div>
+            <div class="sub-tab">Offers</div>
         </div>
+    </div>
 
-        <div class="section-title">Marketplace</div>
-        <div class="gifts-grid">
-            <div class="gift-item">
-                <div class="gift-image"></div>
-                <div class="gift-name">Sparkling Wine</div>
-                <div class="gift-price">12 TON</div>
-            </div>
-            <div class="gift-item">
-                <div class="gift-image"></div>
-                <div class="gift-name">Milk Chocolate</div>
-                <div class="gift-price">8 TON</div>
-            </div>
+    <div class="filters-row">
+        <div class="switch-box">
+            <span style="color: var(--accent-blue)">●</span> Performance
+        </div>
+        <select class="filter-select">
+            <option>Gifts: All</option>
+        </select>
+        <select class="filter-select">
+            <option>Status: All</option>
+        </select>
+    </div>
+
+    <div class="main-content" id="display-area">
+        You don't have any offers yet.
+    </div>
+
+    <div id="wallet-modal" onclick="this.style.display='none'">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 style="margin-top:0">Connect Wallet</h3>
+            <p style="font-size:14px; color:var(--text-secondary)">Choose your preferred wallet to continue</p>
+            <button class="btn-connect" style="width:100%; padding:15px; margin-top:10px">Tonkeeper</button>
+            <button class="btn-connect" style="width:100%; padding:15px; margin-top:10px; background:var(--border-color)">MyTonWallet</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-item" onclick="setTab('market', this)">
+            <span class="footer-icon">🌀</span><span>Market</span>
+        </div>
+        <div class="footer-item" onclick="setTab('auctions', this)">
+            <span class="footer-icon">🔨</span><span>Auctions</span>
+        </div>
+        <div class="footer-item" onclick="setTab('lease', this)">
+            <span class="footer-icon">⏱</span><span>Lease</span>
+        </div>
+        <div class="footer-item active" onclick="setTab('mygifts', this)">
+            <span class="footer-icon">🎁</span><span>My Gifts</span>
+        </div>
+        <div class="footer-item" onclick="setTab('gallery', this)">
+            <span class="footer-icon">🏛</span><span>Gallery</span>
+        </div>
+        <div class="footer-item" onclick="setTab('activity', this)">
+            <span class="footer-icon">📈</span><span>Activity</span>
         </div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.backgroundColor = '#0d1117';
-        tg.headerColor = '#0d1117';
+        tg.headerColor = '#121921';
+        tg.backgroundColor = '#121921';
 
-        if (tg.initDataUnsafe.user) {
-            document.getElementById('username').innerText = tg.initDataUnsafe.user.first_name;
+        // Имя пользователя
+        if (tg.initDataUnsafe?.user) {
+            const user = tg.initDataUnsafe.user;
+            document.getElementById('username').innerText = (user.first_name + ' ' + (user.last_name || '')).toUpperCase();
         }
 
-        function connectWallet() {
-            tg.showPopup({
-                title: 'TonConnect',
-                message: 'Подключить Tonkeeper для совершения покупок?',
-                buttons: [{id: 'ok', type: 'default', text: 'Подключить'}, {type: 'cancel'}]
-            });
+        function showWallet() {
+            document.getElementById('wallet-modal').style.display = 'flex';
+            tg.HapticFeedback.impactOccurred('medium');
+        }
+
+        function setTab(name, el) {
+            // Убираем активный класс у всех
+            document.querySelectorAll('.footer-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+            
+            const area = document.getElementById('display-area');
+            tg.HapticFeedback.selectionChanged();
+
+            if(name === 'market') area.innerText = "No gifts listed on market yet.";
+            if(name === 'auctions') area.innerText = "No active auctions found.";
+            if(name === 'mygifts') area.innerText = "You don't have any gifts yet.";
+            if(name === 'activity') area.innerText = "No recent platform activity.";
+            if(name === 'gallery') area.innerText = "Gallery is empty.";
         }
     </script>
 </body>
