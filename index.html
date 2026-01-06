@@ -38,6 +38,7 @@
       overflow:hidden;
     }
 
+    /* Telegram safe-area helpers */
     .app{
       height:100%;
       padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
@@ -45,6 +46,7 @@
       flex-direction:column;
     }
 
+    /* Top bar */
     .topbar{
       height:54px;
       display:flex;
@@ -78,9 +80,15 @@
       max-width: 60vw;
       opacity:.95;
     }
-    .kebab{opacity:.85;}
-    .close-x{font-size:18px;width:34px;height:34px;}
+    .kebab{
+      opacity:.85;
+    }
+    .close-x{
+      font-size:18px;
+      width:34px;height:34px;
+    }
 
+    /* Balance row */
     .balance-row{
       display:flex;
       align-items:center;
@@ -142,6 +150,7 @@
     .connect:active{transform:scale(.985)}
     .connect svg{width:18px;height:18px; filter: drop-shadow(0 2px 3px rgba(0,0,0,.2));}
 
+    /* Content shell */
     .content{
       flex:1;
       padding:10px 12px 0;
@@ -229,6 +238,7 @@
     .stat.right .val{justify-content:flex-end}
     .stat.right{text-align:right}
 
+    /* Secondary tabs */
     .seg-tabs{
       display:flex;
       gap:8px;
@@ -259,6 +269,7 @@
     }
     .seg-btn:active{background:rgba(255,255,255,.05)}
 
+    /* Filters */
     .filters{
       padding:10px;
       display:flex;
@@ -303,6 +314,7 @@
       user-select:none;
     }
 
+    /* Toggles like in screenshots */
     .toggle{
       display:flex;
       align-items:center;
@@ -351,6 +363,7 @@
       opacity:.9;
     }
 
+    /* Sub tabs (Listed/Unlisted...) */
     .subtabs{
       display:flex;
       gap:10px;
@@ -376,6 +389,7 @@
       box-shadow: 0 0 0 2px rgba(25,167,255,.15) inset;
     }
 
+    /* Main panel */
     .main{
       flex:1;
       display:flex;
@@ -419,6 +433,7 @@
       user-select:none;
     }
 
+    /* Bottom nav */
     .bottom{
       padding:10px 10px calc(10px + env(safe-area-inset-bottom));
       background: linear-gradient(180deg, rgba(10,16,24,0), rgba(10,16,24,.55) 30%, rgba(10,16,24,.75));
@@ -461,6 +476,7 @@
       letter-spacing:.2px;
     }
     .footer-tag a{color: rgba(25,167,255,.95); text-decoration:none}
+    /* Small phones */
     @media (max-width:360px){
       .title{max-width: 54vw}
       .connect{padding:10px 12px}
@@ -470,9 +486,11 @@
 </head>
 <body>
 <div class="app" id="app">
+  <!-- Top line (Telegram header imitation) -->
   <div class="topbar">
     <div class="left">
       <div class="icon-btn" id="backBtn" title="Back" aria-label="Back">
+        <!-- back arrow -->
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
           <path d="M15 18l-6-6 6-6"/>
         </svg>
@@ -491,6 +509,7 @@
     </div>
   </div>
 
+  <!-- Balance row -->
   <div class="balance-row">
     <div class="balance-pill" id="balancePill">
       <div class="ton">
@@ -521,6 +540,7 @@
   </div>
 
   <div class="content">
+    <!-- Profile card -->
     <div class="card profile">
       <div class="gear" title="Settings" aria-label="Settings">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -564,6 +584,7 @@
       </div>
     </div>
 
+    <!-- Secondary top tabs (Market / Gallery section tabs imitation) -->
     <div class="seg-tabs" id="marketTabs">
       <div class="seg-btn active" data-market-tab="gifts">Gifts</div>
       <div class="seg-btn" data-market-tab="activity">Activity</div>
@@ -572,6 +593,7 @@
       <div class="seg-btn" data-market-tab="offers">Offers</div>
     </div>
 
+    <!-- Dynamic main card -->
     <div class="card main">
       <div id="screenRoot"></div>
     </div>
@@ -631,6 +653,9 @@
   </div>
 </div>
 
+<!-- ✅ ensures Telegram.WebApp is available in Telegram clients -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 <script>
 (() => {
   // --- Telegram WebApp integration (safe no-op outside Telegram) ---
@@ -639,14 +664,16 @@
     if (tg) {
       tg.ready();
       tg.expand();
+      // Optional: adapt to Telegram theme if you want later
+      // document.documentElement.style.setProperty('--bg', tg.themeParams?.bg_color || '#0e1621');
     }
   } catch (_) {}
 
   // --- Simple SPA state ---
   const state = {
-    screen: 'market',
-    marketTab: 'gifts',
-    myGiftsTab: 'listed',
+    screen: 'market',           // bottom nav
+    marketTab: 'gifts',         // top segmented
+    myGiftsTab: 'listed',       // subtabs in "My Gifts"
     toggles: {
       performance: true,
       internalPurchase: false,
@@ -684,39 +711,39 @@
   }
 
   // ===============================
-  // TONNEL API (Inventory)
+  // TONNEL API (Inventory) - NO ID INPUT
   // ===============================
   const API_BASE = "http://127.0.0.1:8000";
 
-  function getTelegramId() {
-    try {
-      const id = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-      if (id) return id;
-    } catch (_) {}
-
-    // Debug fallback (browser): спросит один раз и запомнит
-    const saved = localStorage.getItem("tonnel_debug_tid");
-    if (saved) return parseInt(saved, 10);
-    const v = prompt("Enter telegram_id for debug:");
-    if (v) {
-      localStorage.setItem("tonnel_debug_tid", v);
-      return parseInt(v, 10);
-    }
-    return null;
+  function getInitData() {
+    return window.Telegram?.WebApp?.initData || "";
   }
 
   async function fetchInventory() {
-    const tid = getTelegramId();
-    if (!tid) return [];
+    const initData = getInitData();
+
+    // If not opened as Telegram WebApp, initData is empty
+    if (!initData) {
+      return { ok: false, reason: "not_in_telegram", items: [] };
+    }
 
     try {
-      const r = await fetch(`${API_BASE}/inventory/${tid}`);
-      if (!r.ok) return [];
+      const r = await fetch(`${API_BASE}/inventory`, {
+        headers: { "X-TG-INITDATA": initData }
+      });
+
+      if (r.status === 401) {
+        return { ok: false, reason: "unauthorized", items: [] };
+      }
+      if (!r.ok) {
+        return { ok: false, reason: `http_${r.status}`, items: [] };
+      }
+
       const data = await r.json();
-      return data.items || [];
+      return { ok: true, items: data.items || [] };
     } catch (e) {
       console.error("Inventory API error", e);
-      return [];
+      return { ok: false, reason: "network", items: [] };
     }
   }
 
@@ -735,9 +762,11 @@
     setActiveNav();
     setActiveMarketTabs();
 
+    // Title & which top tabs to show
     els.pageTitle.textContent = 'Automated Gift MarketPlace';
     els.marketTabs.style.display = '';
 
+    // Screen root
     els.screenRoot.innerHTML = '';
     if(state.screen === 'market'){
       els.screenRoot.appendChild(renderMarket());
@@ -754,8 +783,9 @@
     }
   }
 
+  // --- UI blocks ---
   function renderFiltersRow(showActiveOrdersToggle=false){
-    const gifts = h('div',{class:'select', role:'button', tabindex:'0'},
+    const gifts = h('div',{class:'select', role:'button', tabindex:'0'}, 
       h('div',{class:'value'}, h('div',{class:'label'}, 'Gifts'), h('div',{}, 'All')),
       h('div',{style:'opacity:.8; font-weight:900;'}, '▾')
     );
@@ -765,12 +795,12 @@
     );
 
     const actions = h('div',{class:'pill-actions'},
-      h('div',{class:'round-ico', title:'Delete'},
+      h('div',{class:'round-ico', title:'Delete'}, 
         h('svg',{viewBox:'0 0 24 24', fill:'none', stroke:'currentColor','stroke-width':'2.1','stroke-linecap':'round','stroke-linejoin':'round'},
           h('path',{d:'M3 6h18'}), h('path',{d:'M8 6V4h8v2'}), h('path',{d:'M6 6l1 16h10l1-16'}), h('path',{d:'M10 11v6'}), h('path',{d:'M14 11v6'})
         )
       ),
-      h('div',{class:'round-ico', title:'Timer'},
+      h('div',{class:'round-ico', title:'Timer'}, 
         h('svg',{viewBox:'0 0 24 24', fill:'none', stroke:'currentColor','stroke-width':'2.1','stroke-linecap':'round','stroke-linejoin':'round'},
           h('path',{d:'M12 2v2'}), h('path',{d:'M7 4h10'}), h('circle',{cx:'12', cy:'13', r:'8'}), h('path',{d:'M12 13l3-2'})
         )
@@ -793,14 +823,16 @@
   }
 
   function renderMarket(){
+    // Depending on marketTab show different empty states like screenshots
     const wrap = h('div',{class:'main-inner'});
+    // Filters row similar to Market/Orders/Offers screens
     wrap.appendChild(h('div',{class:'filters'},
-      h('div',{class:'row'},
-        h('div',{class:'select', role:'button', tabindex:'0'},
+      h('div',{class:'row'}, 
+        h('div',{class:'select', role:'button', tabindex:'0'}, 
           h('div',{class:'value'}, h('div',{class:'label'}, 'Gifts'), h('div',{}, 'All')),
           h('div',{style:'opacity:.8; font-weight:900;'}, '▾')
         ),
-        h('div',{class:'select', role:'button', tabindex:'0'},
+        h('div',{class:'select', role:'button', tabindex:'0'}, 
           h('div',{class:'value'}, h('div',{class:'label'}, 'Status'), h('div',{}, 'All')),
           h('div',{style:'opacity:.8; font-weight:900;'}, '▾')
         )
@@ -810,7 +842,8 @@
     if(state.marketTab === 'offers'){
       wrap.appendChild(h('div',{class:'empty'}, "You don't have any ", h('span',{},'offers')));
     } else if(state.marketTab === 'orders'){
-      wrap.firstChild.innerHTML = '';
+      // like screenshot: toggle + create button
+      wrap.firstChild.innerHTML = ''; // replace filters to match orders view
       wrap.appendChild(h('div',{class:'filters'}, renderFiltersRow(true)));
       wrap.appendChild(h('div',{class:'empty'}, "You don't have any ", h('span',{},'active orders')));
       wrap.appendChild(h('div',{style:'text-align:center;'}, h('div',{class:'primary', onclick: () => toast('Пока нет ордеров. Это кнопка-заглушка.')}, 'Create Buy Order')));
@@ -820,7 +853,7 @@
     } else if(state.marketTab === 'deals'){
       wrap.appendChild(h('div',{class:'empty'}, "No ", h('span',{},'deals'), " yet"));
       wrap.appendChild(h('div',{class:'hint'}, 'Сделки появятся после первых размещений.'));
-    } else {
+    } else { // gifts
       wrap.appendChild(h('div',{class:'empty'}, "No ", h('span',{},'gifts'), " yet"));
       wrap.appendChild(h('div',{class:'hint'}, 'В этом боте ещё никто не пользовался маркетом — всё будет пусто.'));
     }
@@ -830,7 +863,7 @@
 
   function renderMyGifts(){
     const outer = h('div', {});
-
+    // Top toggles row like screenshot
     const toggles = h('div',{class:'filters'},
       h('div',{class:'row'},
         makeToggle('Internal Purchase', 'internalPurchase', false),
@@ -842,6 +875,7 @@
     );
     outer.appendChild(toggles);
 
+    // Subtabs
     const tabs = h('div',{class:'subtabs'},
       makeSubtab('Listed','listed'),
       makeSubtab('Unlisted','unlisted'),
@@ -850,40 +884,46 @@
     );
     outer.appendChild(tabs);
 
+    // Filters row (Gifts/Model + icons)
     const inner = h('div',{class:'main-inner'});
     inner.appendChild(h('div',{class:'filters'}, renderFiltersRow(false)));
 
-    // Реальные items (депозиты)
-    fetchInventory().then(items => {
+    // 🔐 Secure inventory: only via Telegram initData
+    fetchInventory().then(res => {
+      const items = res.items || [];
+
+      if (!res.ok) {
+        inner.appendChild(h('div',{class:'empty'}, "Open in Telegram"));
+        inner.appendChild(h('div',{class:'hint'}, "Этот экран работает только внутри Telegram Mini App"));
+        return;
+      }
+
       if (!items.length) {
-        // сохраняем твой пустой state UI
+        // keep empty UI behavior similar to original
         if(state.myGiftsTab === 'onchain'){
           inner.appendChild(h('div',{class:'empty'}, 'Connect Wallet'));
-          inner.appendChild(h('div',{style:'text-align:center;'},
-            h('button',{class:'connect', type:'button', style:'margin:8px auto 0;', onclick: () => toast('Кошелёк не подключаем — это UI-копия.')},
-              h('svg',{viewBox:'0 0 24 24', fill:'none', stroke:'white','stroke-width':'2.2','stroke-linecap':'round','stroke-linejoin':'round'},
-                h('path',{d:'M16 11V7a4 4 0 0 0-8 0v4'}), h('rect',{x:'6',y:'11',width:'12',height:'10',rx:'2'})
-              ),
-              'Connect Wallet'
-            )
-          ));
+          inner.appendChild(h('div',{style:'text-align:center;'}, h('button',{class:'connect', type:'button', style:'margin:8px auto 0;', onclick: () => toast('Кошелёк не подключаем — это UI-копия.')},
+            h('svg',{viewBox:'0 0 24 24', fill:'none', stroke:'white','stroke-width':'2.2','stroke-linecap':'round','stroke-linejoin':'round'},
+              h('path',{d:'M16 11V7a4 4 0 0 0-8 0v4'}), h('rect',{x:'6',y:'11',width:'12',height:'10',rx:'2'})
+            ),
+            'Connect Wallet'
+          )));
         } else {
           inner.appendChild(h('div',{class:'empty'}, "No gifts yet"));
-          inner.appendChild(h('div',{class:'hint'}, "Want to sell your Gift? Transfer it to ",
-            h('span',{style:'color:var(--accent);'},'@GiftRelayer')
-          ));
+          inner.appendChild(h('div',{class:'hint'}, "Want to sell your Gift? Transfer it to ", h('span',{style:'color:var(--accent);'},'@GiftRelayer')));
         }
         return;
       }
 
-      // Есть items — рендерим как карточки (без изменения дизайна)
+      // items exist
       items.forEach(it => {
+        const created = String(it.created_at || '').replace('T',' ').slice(0,19);
         inner.appendChild(
           h('div',{class:'card', style:'margin-top:10px; padding:14px;'},
             h('div',{style:'font-weight:900;'}, `Stored gift #${it.id}`),
             h('div',{class:'hint'}, `state: ${it.state}`),
             h('div',{class:'hint'}, `ref: ${it.storage_ref}`),
-            h('div',{class:'hint'}, String(it.created_at).replace('T',' ').slice(0,19))
+            h('div',{class:'hint'}, created)
           )
         );
       });
@@ -913,21 +953,21 @@
     const wrap = h('div',{class:'main-inner'});
     wrap.appendChild(h('div',{class:'filters'},
       h('div',{class:'row'},
-        h('div',{class:'select', role:'button', tabindex:'0'},
+        h('div',{class:'select', role:'button', tabindex:'0'}, 
           h('div',{class:'value'}, h('div',{class:'label'}, 'Gifts'), h('div',{}, 'All')),
           h('div',{style:'opacity:.8; font-weight:900;'}, '▾')
         ),
-        h('div',{class:'select', role:'button', tabindex:'0'},
+        h('div',{class:'select', role:'button', tabindex:'0'}, 
           h('div',{class:'value'}, h('div',{class:'label'}, 'Model'), h('div',{}, 'All')),
           h('div',{style:'opacity:.8; font-weight:900;'}, '▾')
         ),
         h('div',{class:'pill-actions'},
-          h('div',{class:'round-ico', title:'Sort'},
+          h('div',{class:'round-ico', title:'Sort'}, 
             h('svg',{viewBox:'0 0 24 24', fill:'none', stroke:'currentColor','stroke-width':'2.1','stroke-linecap':'round','stroke-linejoin':'round'},
               h('path',{d:'M10 3H3v7'}), h('path',{d:'M3 3l7 7'}), h('path',{d:'M14 21h7v-7'}), h('path',{d:'M21 21l-7-7'})
             )
           ),
-          h('div',{class:'round-ico', title:'Delete'},
+          h('div',{class:'round-ico', title:'Delete'}, 
             h('svg',{viewBox:'0 0 24 24', fill:'none', stroke:'currentColor','stroke-width':'2.1','stroke-linecap':'round','stroke-linejoin':'round'},
               h('path',{d:'M3 6h18'}), h('path',{d:'M8 6V4h8v2'}), h('path',{d:'M6 6l1 16h10l1-16'})
             )
@@ -950,6 +990,7 @@
   }
 
   function makeToggle(label, key, defaultOn){
+    // keep initial in state as is
     const on = !!state.toggles[key];
     return h('div',{class:'toggle '+(on?'on':''), onclick: () => { state.toggles[key]=!state.toggles[key]; render(); }},
       h('div',{class:'switch', 'aria-hidden':'true'}),
@@ -958,9 +999,11 @@
     );
   }
   function makeSubtab(label, key){
-    return h('div',{class:'subtab '+(state.myGiftsTab===key?'active':''), onclick:() => {state.myGiftsTab=key; render();}}, label);
+    const el = h('div',{class:'subtab '+(state.myGiftsTab===key?'active':''), onclick:() => {state.myGiftsTab=key; render();}}, label);
+    return el;
   }
 
+  // Market tab switching
   document.querySelectorAll('[data-market-tab]').forEach(b => {
     b.addEventListener('click', () => {
       state.marketTab = b.dataset.marketTab;
@@ -968,6 +1011,7 @@
     });
   });
 
+  // Bottom nav switching
   document.querySelectorAll('.nav-item').forEach(n => {
     n.addEventListener('click', () => {
       state.screen = n.dataset.screen;
@@ -975,6 +1019,7 @@
     });
   });
 
+  // Buttons (no real wallet / no NFT logic)
   function toast(msg){
     const t = h('div',{style:`
       position:fixed; left:50%; bottom:94px; transform:translateX(-50%);
@@ -998,11 +1043,13 @@
   els.backBtn.addEventListener('click', () => toast('Back: в оригинале это навигация Telegram.'));
   els.refreshBtn.addEventListener('click', () => toast('Обновление: пока данных нет (новый бот).'));
 
+  // Defaults: empty account
   document.getElementById('balanceText').textContent = '0.000';
   document.getElementById('volumeText').textContent = '0';
   document.getElementById('refText').textContent = '0';
   document.getElementById('userName').textContent = (tg?.initDataUnsafe?.user?.first_name || 'NEW USER');
 
+  // Initial render
   render();
 })();
 </script>
